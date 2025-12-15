@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@NoArgsConstructor
+@ToString
 @Entity
 @Table(name  = "jobs")
 public class Job {
@@ -22,7 +24,7 @@ public class Job {
 
     @NonNull
     @Column(name = "enabled")
-    private Boolean enabled;
+    private Boolean isEnabled;
 
     @NonNull
     @Column(name = "frequency_in_mins")

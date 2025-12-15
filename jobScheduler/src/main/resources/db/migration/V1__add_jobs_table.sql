@@ -1,5 +1,5 @@
 CREATE TABLE jobs(
-    id BIGINT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     enabled BOOLEAN NOT NULL,
     frequency_in_mins INTEGER NOT NULL DEFAULT 15,
