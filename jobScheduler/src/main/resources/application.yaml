@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: jobScheduler
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jobschedules
+    username: postgres
+    password: Boompow16+
