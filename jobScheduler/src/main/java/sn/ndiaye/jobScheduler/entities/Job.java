@@ -25,7 +25,7 @@ public class Job {
 
     @NonNull
     @Column(name = "enabled")
-    private Boolean isEnabled;
+    private boolean isEnabled;
 
     @NonNull
     @Column(name = "frequency_in_mins")

@@ -13,7 +13,7 @@ public class JobSchedulerApplication {
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(JobSchedulerApplication.class, args);
         var jobService = context.getBean(JobService.class);
-        jobService.updateJob(3L,"UpdatedJob", false, null);
+        jobService.updateJob(3L,"UpdatedJob", true, null);
         jobService.listAllJobs();
     }
 

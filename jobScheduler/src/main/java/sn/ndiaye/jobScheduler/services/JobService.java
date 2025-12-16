@@ -1,5 +1,6 @@
 package sn.ndiaye.jobScheduler.services;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,12 +13,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
+@Transactional
 @Service
 public class JobService {
     private JobRepository jobRepository;
 
 
-    public void createJob(String name, Boolean isEnabled, Integer frequencyInMinutes) {
+    public void createJob(String name, boolean isEnabled, Integer frequencyInMinutes) {
         var job = new Job(name, isEnabled, frequencyInMinutes);
         if (isEnabled)
             synchronizeJob(job, frequencyInMinutes);
@@ -47,10 +49,10 @@ public class JobService {
         jobs.forEach(System.out::println);
     }
 
-    public void updateJob(Long jobId, String name, Boolean isEnabled, Integer frequencyInMinutes) {
+    public void updateJob(Long jobId, String name, boolean isEnabled, Integer frequencyInMinutes) {
         var job = jobRepository.findById(jobId).orElseThrow();
         boolean hasNewName = name != null && !job.getName().equals(name);
-        boolean hasNewEnableStatus = isEnabled != null && job.getIsEnabled() != isEnabled;
+        boolean hasNewEnableStatus = job.isEnabled() != isEnabled;
         boolean hasNewFrequency = frequencyInMinutes != null
                 && job.getFrequencyInMinutes() != frequencyInMinutes.intValue();
 
@@ -62,16 +64,15 @@ public class JobService {
             synchronizeJob(job, frequencyInMinutes);
         }
         if (hasNewEnableStatus) {
-            job.setIsEnabled(isEnabled);
-            synchronizeJob(job, frequencyInMinutes);
+            job.setEnabled(isEnabled);
+            synchronizeJob(job, job.getFrequencyInMinutes());
         }
 
-        jobRepository.save(job);
     }
 
     private void synchronizeJob(Job job, Integer frequencyInMinutes) {
         // When the job is disabled it doesn't have a run date anymore
-        if (!job.getIsEnabled()) {
+        if (!job.isEnabled()) {
             job.setNextRunAt(null);
             return;
         }
