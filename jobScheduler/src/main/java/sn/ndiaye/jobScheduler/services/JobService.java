@@ -6,6 +6,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import sn.ndiaye.jobScheduler.entities.Job;
+import sn.ndiaye.jobScheduler.entities.JobExecution;
+import sn.ndiaye.jobScheduler.repositories.JobExecutionRepository;
 import sn.ndiaye.jobScheduler.repositories.JobRepository;
 import sn.ndiaye.jobScheduler.repositories.specifications.JobSpec;
 
@@ -17,7 +19,7 @@ import java.time.LocalDateTime;
 @Service
 public class JobService {
     private JobRepository jobRepository;
-
+    private JobExecutionRepository jobExecutionRepository;
 
     public void createJob(String name, boolean isEnabled, Integer frequencyInMinutes) {
         var job = new Job(name, isEnabled, frequencyInMinutes);
@@ -94,4 +96,22 @@ public class JobService {
         jobRepository.deleteById(jobId);
     }
 
+    public void executeJob(Long jobId) {
+        var job = jobRepository.findById(jobId).orElseThrow();
+        var jobExecution = JobExecution.builder()
+                .startedAt(job.getNextRunAt())
+                .finishedAt(job.getNextRunAt().plusMinutes(job.getFrequencyInMinutes()))
+                .status(JobExecution.Status.SUCCESS)
+                .message(String.format("job %s executed with %s", job.getName(), JobExecution.Status.SUCCESS))
+                .job(job)
+                .build();
+        jobExecutionRepository.save(jobExecution);
+        job.setLastRunAt(jobExecution.getFinishedAt());
+        synchronizeJob(job, job.getFrequencyInMinutes());
+    }
+
+    public void listAllJobExecutions() {
+        var jobExecutions = jobExecutionRepository.findAll();
+        jobExecutions.forEach(System.out::println);
+    }
 }
