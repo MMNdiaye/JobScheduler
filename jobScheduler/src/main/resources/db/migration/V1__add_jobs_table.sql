@@ -3,6 +3,6 @@ CREATE TABLE jobs(
     name VARCHAR(255) NOT NULL,
     enabled BOOLEAN NOT NULL,
     frequency_in_mins INTEGER NOT NULL DEFAULT 15,
-    last_run_at DATE,
-    next_run_at DATE
+    last_run_at TIMESTAMP,
+    next_run_at TIMESTAMP
 );

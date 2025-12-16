@@ -1,5 +1,6 @@
 package sn.ndiaye.jobScheduler.entities;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,4 +36,6 @@ public class Job {
 
     @Column(name = "next_run_at")
     private LocalDateTime nextRunAt = null;
+
+
 }

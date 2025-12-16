@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import sn.ndiaye.jobScheduler.entities.Job;
 import sn.ndiaye.jobScheduler.repositories.JobRepository;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @Service
 public class JobService {
@@ -13,6 +15,8 @@ public class JobService {
 
     public void createJob(String name, Boolean isEnabled, Integer frequencyInMinutes) {
         var job = new Job(name, isEnabled, frequencyInMinutes);
+        if (isEnabled)
+            job.setNextRunAt(LocalDateTime.now().plusMinutes(frequencyInMinutes));
         jobRepository.save(job);
     }
 

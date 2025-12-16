@@ -11,7 +11,7 @@ public class JobSchedulerApplication {
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(JobSchedulerApplication.class, args);
         var jobService = context.getBean(JobService.class);
-        jobService.createJob("test", false, 30);
+        jobService.createJob("testEnabled", true, 30);
         jobService.listAllJobs();
 	}
 
