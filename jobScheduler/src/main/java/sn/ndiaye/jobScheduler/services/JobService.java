@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import sn.ndiaye.jobScheduler.entities.Job;
+import sn.ndiaye.jobScheduler.entities.JobAction;
 import sn.ndiaye.jobScheduler.entities.JobExecution;
 import sn.ndiaye.jobScheduler.repositories.JobExecutionRepository;
 import sn.ndiaye.jobScheduler.repositories.JobRepository;
@@ -23,6 +24,7 @@ import java.util.List;
 public class JobService{
     private final JobRepository jobRepository;
     private final JobExecutionRepository jobExecutionRepository;
+    private final AuditService auditService;
 
 
     public void createJob(String name, boolean isEnabled, Integer frequencyInMinutes) {
@@ -30,6 +32,7 @@ public class JobService{
         if (isEnabled)
             synchronizeJob(job, frequencyInMinutes);
         jobRepository.save(job);
+        auditService.log(JobAction.CREATED, job.getId(),LocalDateTime.now());
     }
 
     public void listJobs(Long id, String name, Integer frequencyInMinutes, LocalDate lastRunAt) {
@@ -73,9 +76,18 @@ public class JobService{
             job.setFrequencyInMinutes(frequencyInMinutes);
             synchronizeJob(job, frequencyInMinutes);
         }
+
+        if (hasNewName || hasNewFrequency) {
+            auditService.log(JobAction.MODIFIED, jobId, LocalDateTime.now());
+        }
+
         if (hasNewEnableStatus) {
             job.setEnabled(isEnabled);
             synchronizeJob(job, job.getFrequencyInMinutes());
+            if (isEnabled)
+                auditService.log(JobAction.ENABLED, jobId, LocalDateTime.now());
+            else
+                auditService.log(JobAction.DISABLED, jobId, LocalDateTime.now());
         }
 
     }
@@ -102,12 +114,15 @@ public class JobService{
 
     public void deleteJob(Long jobId) {
         jobRepository.deleteById(jobId);
+        auditService.log(JobAction.DELETED, jobId, LocalDateTime.now());
     }
 
+    @Transactional
     public void deleteAllJobs() {
-        for (var job : jobRepository.findAll())
-            jobExecutionRepository.deleteByJob(job);
-        jobRepository.deleteAll();
+        for (var job : jobRepository.findAll()) {
+            jobRepository.delete(job);
+            auditService.log(JobAction.DELETED, job.getId(), LocalDateTime.now());
+        }
     }
 
     public void executeJob(Long jobId) {
@@ -122,6 +137,7 @@ public class JobService{
         jobExecutionRepository.save(jobExecution);
         job.setLastRunAt(jobExecution.getFinishedAt());
         synchronizeJob(job, job.getFrequencyInMinutes());
+        auditService.log(JobAction.EXECUTED, jobId, LocalDateTime.now());
         System.out.println("Executed " + job);
     }
 

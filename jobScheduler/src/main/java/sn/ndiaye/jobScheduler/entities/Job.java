@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -37,5 +39,7 @@ public class Job {
     @Column(name = "next_run_at")
     private LocalDateTime nextRunAt = null;
 
+    @OneToMany(mappedBy = "job", cascade = CascadeType.REMOVE)
+    private Set<JobExecution> jobExecutions;
 
 }
