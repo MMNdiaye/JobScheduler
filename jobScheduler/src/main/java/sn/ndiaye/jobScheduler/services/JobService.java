@@ -2,6 +2,8 @@ package sn.ndiaye.jobScheduler.services;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -13,13 +15,15 @@ import sn.ndiaye.jobScheduler.repositories.specifications.JobSpec;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional
 @Service
-public class JobService {
-    private JobRepository jobRepository;
-    private JobExecutionRepository jobExecutionRepository;
+public class JobService{
+    private final JobRepository jobRepository;
+    private final JobExecutionRepository jobExecutionRepository;
+
 
     public void createJob(String name, boolean isEnabled, Integer frequencyInMinutes) {
         var job = new Job(name, isEnabled, frequencyInMinutes);
@@ -49,6 +53,10 @@ public class JobService {
                 .and(Sort.by("name"));
         var jobs = jobRepository.findAll(sort);
         jobs.forEach(System.out::println);
+    }
+
+    List<Job> getAllJobs() {
+        return jobRepository.findAll();
     }
 
     public void updateJob(Long jobId, String name, boolean isEnabled, Integer frequencyInMinutes) {
@@ -96,6 +104,12 @@ public class JobService {
         jobRepository.deleteById(jobId);
     }
 
+    public void deleteAllJobs() {
+        for (var job : jobRepository.findAll())
+            jobExecutionRepository.deleteByJob(job);
+        jobRepository.deleteAll();
+    }
+
     public void executeJob(Long jobId) {
         var job = jobRepository.findById(jobId).orElseThrow();
         var jobExecution = JobExecution.builder()
@@ -108,6 +122,7 @@ public class JobService {
         jobExecutionRepository.save(jobExecution);
         job.setLastRunAt(jobExecution.getFinishedAt());
         synchronizeJob(job, job.getFrequencyInMinutes());
+        System.out.println("Executed " + job);
     }
 
     public void listAllJobExecutions() {
