@@ -3,6 +3,7 @@ package sn.ndiaye.jobScheduler.services;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import sn.ndiaye.jobScheduler.entities.Job;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Lazy
 public class JobScheduler {
     private final JobService jobService;
     private Thread thread;
