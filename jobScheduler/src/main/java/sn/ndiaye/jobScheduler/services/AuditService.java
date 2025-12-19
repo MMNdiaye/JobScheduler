@@ -41,7 +41,7 @@ public class AuditService {
     }
 
     public void seeAllReports() {
-        var sort = Sort.by("occurred_at");
+        var sort = Sort.by("occurredAt");
          auditRepository.findAll(sort).forEach(System.out::println);
     }
 }

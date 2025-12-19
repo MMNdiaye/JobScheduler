@@ -117,7 +117,6 @@ public class JobService{
         auditService.log(JobAction.DELETED, jobId, LocalDateTime.now());
     }
 
-    @Transactional
     public void deleteAllJobs() {
         for (var job : jobRepository.findAll()) {
             jobRepository.delete(job);

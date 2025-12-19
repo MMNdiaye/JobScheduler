@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import sn.ndiaye.jobScheduler.entities.Job;
+import sn.ndiaye.jobScheduler.entities.JobAction;
+import sn.ndiaye.jobScheduler.services.AuditService;
 import sn.ndiaye.jobScheduler.services.JobScheduler;
 import sn.ndiaye.jobScheduler.services.JobService;
 
@@ -15,8 +17,9 @@ public class JobSchedulerApplication {
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(JobSchedulerApplication.class, args);
         var jobService = context.getBean(JobService.class);
-        jobService.listAllJobs();
-
+        var auditService = context.getBean(AuditService.class);
+        // var jobScheduler = context.getBean(JobScheduler.class);
+         auditService.seeFilteredReports(null, JobAction.EXECUTED, LocalDate.now());
     }
 
 }

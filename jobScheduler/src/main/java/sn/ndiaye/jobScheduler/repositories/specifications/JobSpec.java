@@ -22,7 +22,12 @@ public class JobSpec {
     }
 
     public static Specification<Job> hasLastRunAt(LocalDate lastRunAt) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("lastRunAt").as(LocalDate.class), lastRunAt);
+        return ((root, query, criteriaBuilder) -> {
+            var start = lastRunAt.atStartOfDay();
+            var end = lastRunAt.plusDays(1).atStartOfDay();
+
+            return criteriaBuilder.between(root.get("lastRunAt"), start, end);
+        });
+
     }
 }

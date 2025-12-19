@@ -17,9 +17,12 @@ public class AuditSpec {
                 -> cb.equal(root.get("action"), action);
     }
 
-    public static Specification<Audit> hasOccurredAt(LocalDate occuredAt) {
-        return (root, query, cb)
-                -> cb.equal(root.get("occurredAt").as(LocalDate.class), occuredAt);
+    public static Specification<Audit> hasOccurredAt(LocalDate occurredAt) {
+        return ((root, query, cb) ->  {
+            var start = occurredAt.atStartOfDay();
+            var end = occurredAt.plusDays(1).atStartOfDay();
+            return cb.between(root.get("occurredAt"), start, end);
+        });
     }
 
 }

@@ -40,6 +40,7 @@ public class Job {
     private LocalDateTime nextRunAt = null;
 
     @OneToMany(mappedBy = "job", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
     private Set<JobExecution> jobExecutions;
 
 }
